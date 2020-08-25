@@ -12,6 +12,13 @@ import org.tinygame.herostory.msg.GameMsgProtocol;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 重构笔记：
+ * 1.抽取广播和用户管理为工具类，使得Handler职责更加明确
+ * 2.抽取对msg的处理，使其成为根据不同msg类型形成的不同msgHandler，再对这些handler进行接口规范
+ * 3.抽取对msg的类型判断，使其成为cmd的工厂，只需要传入msg就可以在ChannelHandler的业务中得到不同的builder进行
+ */
+
 public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
 
     static private final Logger LOGGER = LoggerFactory.getLogger(GameMsgHandler.class);
@@ -46,7 +53,6 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, Object msg) throws Exception {
-        //msg已经被decoder转码成为GameMsgProtocol对象
 
         System.out.println("收到客户短消息， msgClazz = " + msg.getClass().getName() + ", msg = " + msg);
 
@@ -73,7 +79,8 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
 
             GameMsgProtocol.UserEntryResult newResult = resultBuilder.build();
             Broadcaster.broadcast(newResult);
-        } else if (msg instanceof GameMsgProtocol.WhoElseIsHereCmd) {
+        }
+        else if (msg instanceof GameMsgProtocol.WhoElseIsHereCmd) {
             GameMsgProtocol.WhoElseIsHereResult.Builder resultBuilder = GameMsgProtocol.WhoElseIsHereResult.newBuilder();
             //todo:用户字典
             for (User existUser : UserManager.listUser()) {
@@ -86,7 +93,8 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
             }
             GameMsgProtocol.WhoElseIsHereResult newResult = resultBuilder.build();
             channelHandlerContext.writeAndFlush(newResult);
-        } else if (msg instanceof GameMsgProtocol.UserMoveToCmd) {
+        }
+        else if (msg instanceof GameMsgProtocol.UserMoveToCmd) {
             GameMsgProtocol.UserMoveToCmd userMoveToCmd = (GameMsgProtocol.UserMoveToCmd) msg;
             float moveToPosX = userMoveToCmd.getMoveToPosX();
             float moveToPosY = userMoveToCmd.getMoveToPosY();
@@ -102,6 +110,5 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
             GameMsgProtocol.UserMoveToResult newResult = resultBuilder.build();
             Broadcaster.broadcast(newResult);
         }
-
     }
 }
