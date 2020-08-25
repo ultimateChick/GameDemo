@@ -1,4 +1,4 @@
-package org.minigame.herostory;
+package org.tinygame.herostory;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -10,10 +10,8 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 
-import java.net.InetSocketAddress;
-
 public class ServerMain {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         try {
 
             NioEventLoopGroup bossGroup = new NioEventLoopGroup(1);
@@ -30,7 +28,9 @@ public class ServerMain {
                                     new HttpServerCodec(), //Http 服务器编解码器
                                     new HttpObjectAggregator(65535), // 内容长度限制
                                     new WebSocketServerProtocolHandler("/websocket"), // WebSocket协议处理器，在这里处理
-                                    new GameMessageHandler()
+                                    new GameMsgDecoder(),
+                                    new GameMsgEncoder(),
+                                    new GameMsgHandler()
                             );
                         }
                     }).bind(12345).sync();
