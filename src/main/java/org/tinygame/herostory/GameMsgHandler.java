@@ -1,36 +1,47 @@
 package org.tinygame.herostory;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.group.ChannelGroup;
-import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.util.AttributeKey;
-import io.netty.util.concurrent.GlobalEventExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tinygame.herostory.model.User;
+import org.tinygame.herostory.model.UserManager;
 import org.tinygame.herostory.msg.GameMsgProtocol;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
-    /**
-     * 客户端信道数组，可用于消息广播等
-     * 一定使用static，否则无法实现群发
-     * static可以保证所有GameMsgHandler共享一个对象
-     * final防止被不同的客户端修改造成混乱
-     */
-    static private final ChannelGroup _channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
-    /**
-     * 用户字典，记录已登入的用户列表
-     */
-    static private final Map<Integer, User> _userMap = new HashMap<>();
+    static private final Logger LOGGER = LoggerFactory.getLogger(GameMsgHandler.class);
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        _channelGroup.add(ctx.channel());
+        Broadcaster.addChannel(ctx.channel());
+    }
+
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+        super.handlerRemoved(ctx);
+
+        Broadcaster.removeChannel(ctx.channel());
+
+        // 先拿到用户 Id
+        Integer userId = (Integer)ctx.channel().attr(AttributeKey.valueOf("userId")).get();
+
+        if (null == userId) {
+            return;
+        }
+
+        UserManager.removeUserById(userId);
+
+        GameMsgProtocol.UserQuitResult.Builder resultBuilder = GameMsgProtocol.UserQuitResult.newBuilder();
+        resultBuilder.setQuitUserId(userId);
+
+        GameMsgProtocol.UserQuitResult newResult = resultBuilder.build();
+        Broadcaster.broadcast(newResult);
     }
 
     @Override
@@ -48,24 +59,24 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
             resultBuilder.setHeroAvatar(heroAvatar);
 
             /**
-             * 将用户Id附着到Channel上
-             */
-            channelHandlerContext.channel().attr(AttributeKey.valueOf("userId")).set(userId);
-
-            /**
              * 将用户加入字典
              */
             User newUser = new User();
             newUser.userId = userId;
             newUser.heroAvatar = heroAvatar;
-            _userMap.put(userId, newUser);
+            UserManager.addUser(newUser);
+
+            /**
+             * 将用户Id附着到Channel上
+             */
+            channelHandlerContext.channel().attr(AttributeKey.valueOf("userId")).set(userId);
 
             GameMsgProtocol.UserEntryResult newResult = resultBuilder.build();
-            _channelGroup.writeAndFlush(newResult);
+            Broadcaster.broadcast(newResult);
         } else if (msg instanceof GameMsgProtocol.WhoElseIsHereCmd) {
             GameMsgProtocol.WhoElseIsHereResult.Builder resultBuilder = GameMsgProtocol.WhoElseIsHereResult.newBuilder();
             //todo:用户字典
-            for (User existUser : _userMap.values()) {
+            for (User existUser : UserManager.listUser()) {
                 if (null == existUser) continue;
                 GameMsgProtocol.WhoElseIsHereResult.UserInfo.Builder userInfoBuilder =
                         GameMsgProtocol.WhoElseIsHereResult.UserInfo.newBuilder();
@@ -80,26 +91,17 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
             float moveToPosX = userMoveToCmd.getMoveToPosX();
             float moveToPosY = userMoveToCmd.getMoveToPosY();
             Integer userId = (Integer) channelHandlerContext.channel().attr(AttributeKey.valueOf("userId")).get();
-            if (null == userId) return;
+            if (null == userId) {
+                LOGGER.warn(userId + " 号user是空的，但还是附着了");
+                return;
+            }
             GameMsgProtocol.UserMoveToResult.Builder resultBuilder = GameMsgProtocol.UserMoveToResult.newBuilder();
             resultBuilder.setMoveToPosX(moveToPosX);
             resultBuilder.setMoveToPosY(moveToPosY);
             resultBuilder.setMoveUserId(userId);
-            GameMsgProtocol.UserMoveToResult result = resultBuilder.build();
-            channelHandlerContext.writeAndFlush(result);
+            GameMsgProtocol.UserMoveToResult newResult = resultBuilder.build();
+            Broadcaster.broadcast(newResult);
         }
-//        System.out.println("收到客户端的消息， msg = " + msg);
-//        BinaryWebSocketFrame frame = (BinaryWebSocketFrame) msg;
-//        ByteBuf content = frame.content();
-//
-//        byte[] byteArray = new byte[content.readableBytes()];
-//        content.readBytes(byteArray);
-//
-//        System.out.println("收到的字节：");
-//        for (byte b: byteArray){
-//            System.out.print((int) b);
-//            System.out.print(", ");
-//        }
-//        System.out.println();
+
     }
 }

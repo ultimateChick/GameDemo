@@ -9,8 +9,14 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ServerMain {
+    /**
+     * 日志对象
+     */
+    static private final Logger LOGGER = LoggerFactory.getLogger(ServerMain.class);
     public static void main(String[] args) {
         try {
 
@@ -35,7 +41,7 @@ public class ServerMain {
                         }
                     }).bind(12345).sync();
             if (future.isSuccess()) {
-                System.out.println("服务器启动成功");
+                LOGGER.info("服务器启动成功!");
             }
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {

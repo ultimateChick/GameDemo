@@ -34,16 +34,18 @@ public class GameMsgDecoder extends ChannelInboundHandlerAdapter {
             case GameMsgProtocol.MsgCode
                     .WHO_ELSE_IS_HERE_CMD_VALUE:
                 cmd = GameMsgProtocol.WhoElseIsHereCmd.parseFrom(msgBody);
+                break;
             case GameMsgProtocol.MsgCode
                     .USER_MOVE_TO_CMD_VALUE:
                 cmd = GameMsgProtocol.UserMoveToCmd.parseFrom(msgBody);
+                break;
         }
         /**
          * fireChannelRead，把消息传递到下一个处理器
          * 因为pipeline的原因，我们会有一个链式的处理器队列，队列有头尾之分，消息通常从头部进入
          * 假设有队列ABC，如果A不进行fireChannelRead，那么BC永远接收不到消息
          */
-        if (null != cmd){
+        if (null != cmd) {
             ctx.fireChannelRead(cmd);
         }
     }
