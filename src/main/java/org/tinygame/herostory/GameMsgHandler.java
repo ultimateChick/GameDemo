@@ -1,10 +1,16 @@
 package org.tinygame.herostory;
 
+import com.google.protobuf.GeneratedMessageV3;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinygame.herostory.cmdhandler.ICmdHandler;
+import org.tinygame.herostory.cmdhandler.UserEntryCmdHandler;
+import org.tinygame.herostory.cmdhandler.UserMoveToCmdHandler;
+import org.tinygame.herostory.cmdhandler.WhoElseIsHereCmdHandler;
+import org.tinygame.herostory.factory.CmdHandlerFactory;
 import org.tinygame.herostory.model.User;
 import org.tinygame.herostory.model.UserManager;
 import org.tinygame.herostory.msg.GameMsgProtocol;
@@ -56,59 +62,24 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
 
         System.out.println("收到客户短消息， msgClazz = " + msg.getClass().getName() + ", msg = " + msg);
 
-        if (msg instanceof GameMsgProtocol.UserEntryCmd) {
-            GameMsgProtocol.UserEntryCmd cmd = (GameMsgProtocol.UserEntryCmd) msg;
-            int userId = cmd.getUserId();
-            String heroAvatar = cmd.getHeroAvatar();
-            GameMsgProtocol.UserEntryResult.Builder resultBuilder = GameMsgProtocol.UserEntryResult.newBuilder();
-            resultBuilder.setUserId(userId);
-            resultBuilder.setHeroAvatar(heroAvatar);
+        //其实handle方法要的是cmd，我们可以通过对msg的判断来决定到底是什么cmd
+        //if-else可以完成，map也可以完成
+        //用map的方式还可以结合反射，自动获取圈梁的msg、cmd、msgCode的映射
+         GeneratedMessageV3 cmd = null;
 
-            /**
-             * 将用户加入字典
-             */
-            User newUser = new User();
-            newUser.userId = userId;
-            newUser.heroAvatar = heroAvatar;
-            UserManager.addUser(newUser);
+         //希望有一个工厂，我们把msg投进去，就能返回一个正确的cmd，而不是在外面if-else
 
-            /**
-             * 将用户Id附着到Channel上
-             */
-            channelHandlerContext.channel().attr(AttributeKey.valueOf("userId")).set(userId);
+        ICmdHandler<? extends GeneratedMessageV3> handler = CmdHandlerFactory.getHandler(msg.getClass());
 
-            GameMsgProtocol.UserEntryResult newResult = resultBuilder.build();
-            Broadcaster.broadcast(newResult);
-        }
-        else if (msg instanceof GameMsgProtocol.WhoElseIsHereCmd) {
-            GameMsgProtocol.WhoElseIsHereResult.Builder resultBuilder = GameMsgProtocol.WhoElseIsHereResult.newBuilder();
-            //todo:用户字典
-            for (User existUser : UserManager.listUser()) {
-                if (null == existUser) continue;
-                GameMsgProtocol.WhoElseIsHereResult.UserInfo.Builder userInfoBuilder =
-                        GameMsgProtocol.WhoElseIsHereResult.UserInfo.newBuilder();
-                userInfoBuilder.setUserId(existUser.userId);
-                userInfoBuilder.setHeroAvatar(existUser.heroAvatar);
-                resultBuilder.addUserInfo(userInfoBuilder);
-            }
-            GameMsgProtocol.WhoElseIsHereResult newResult = resultBuilder.build();
-            channelHandlerContext.writeAndFlush(newResult);
-        }
-        else if (msg instanceof GameMsgProtocol.UserMoveToCmd) {
-            GameMsgProtocol.UserMoveToCmd userMoveToCmd = (GameMsgProtocol.UserMoveToCmd) msg;
-            float moveToPosX = userMoveToCmd.getMoveToPosX();
-            float moveToPosY = userMoveToCmd.getMoveToPosY();
-            Integer userId = (Integer) channelHandlerContext.channel().attr(AttributeKey.valueOf("userId")).get();
-            if (null == userId) {
-                LOGGER.warn(userId + " 号user是空的，但还是附着了");
-                return;
-            }
-            GameMsgProtocol.UserMoveToResult.Builder resultBuilder = GameMsgProtocol.UserMoveToResult.newBuilder();
-            resultBuilder.setMoveToPosX(moveToPosX);
-            resultBuilder.setMoveToPosY(moveToPosY);
-            resultBuilder.setMoveUserId(userId);
-            GameMsgProtocol.UserMoveToResult newResult = resultBuilder.build();
-            Broadcaster.broadcast(newResult);
-        }
+        if(null == handler) return;
+
+        handler.handle(channelHandlerContext, cast(msg));
+
     }
+
+    static private <T extends GeneratedMessageV3> T cast(Object msg){
+        if (null == msg) return null;
+        return (T)msg;
+    }
+
 }

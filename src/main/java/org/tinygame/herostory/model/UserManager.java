@@ -3,19 +3,20 @@ package org.tinygame.herostory.model;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class UserManager {
 
     /**
      * 用户字典，记录已登入的用户列表
      */
-    static private final Map<Integer, User> _userMap = new HashMap<>();
+    static private final Map<Integer, User> _userMap = new ConcurrentHashMap<>();
 
     private UserManager(){}
 
     static public void addUser(User user) {
         if (null == user) return;
-        _userMap.put(user.userId, user);
+        _userMap.putIfAbsent(user.userId, user); //和redis的setnx很像
     }
 
     /**

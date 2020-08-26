@@ -1,10 +1,12 @@
 package org.tinygame.herostory;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.Message;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import org.tinygame.herostory.factory.GameMsgRecognizer;
 import org.tinygame.herostory.msg.GameMsgProtocol;
 
 public class GameMsgDecoder extends ChannelInboundHandlerAdapter {
@@ -24,22 +26,14 @@ public class GameMsgDecoder extends ChannelInboundHandlerAdapter {
         byte[] msgBody = new byte[content.readableBytes()];
         content.readBytes(msgBody); //具体的消息内容
 
-        GeneratedMessageV3 cmd = null;
+        Message cmd = null;
 
-        switch (msgCode) {
-            case GameMsgProtocol
-                    .MsgCode.USER_ENTRY_CMD_VALUE:
-                cmd = GameMsgProtocol.UserEntryCmd.parseFrom(msgBody);
-                break;
-            case GameMsgProtocol.MsgCode
-                    .WHO_ELSE_IS_HERE_CMD_VALUE:
-                cmd = GameMsgProtocol.WhoElseIsHereCmd.parseFrom(msgBody);
-                break;
-            case GameMsgProtocol.MsgCode
-                    .USER_MOVE_TO_CMD_VALUE:
-                cmd = GameMsgProtocol.UserMoveToCmd.parseFrom(msgBody);
-                break;
-        }
+        Message.Builder msgBuilderByMsgCode = GameMsgRecognizer.getMsgBuilderByMsgCode(msgCode);
+
+        if (null == msgBuilderByMsgCode) return;
+        msgBuilderByMsgCode.clear();
+        cmd = msgBuilderByMsgCode.mergeFrom(msgBody).build();
+
         /**
          * fireChannelRead，把消息传递到下一个处理器
          * 因为pipeline的原因，我们会有一个链式的处理器队列，队列有头尾之分，消息通常从头部进入
