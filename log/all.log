@@ -1,8 +1,13 @@
-[16:54:52,827] [INFO] ServerMain.main --> 服务器启动成功!
-[17:03:01,986] [INFO] ServerMain.main --> 服务器启动成功!
-[17:03:04,034] [WARN] GameMsgHandler.channelRead0 --> null 号user是空的，但还是附着了
-[17:08:02,212] [INFO] ServerMain.main --> 服务器启动成功!
-[17:09:57,884] [INFO] ServerMain.main --> 服务器启动成功!
-[17:10:13,134] [INFO] ServerMain.main --> 服务器启动成功!
-[12:46:11,398] [INFO] ServerMain.main --> 服务器启动成功!
-[16:48:00,577] [INFO] ServerMain.main --> 服务器启动成功!
+[12:32:15,014] [INFO] ServerMain.main --> 服务器启动成功!
+[12:48:34,008] [INFO] CmdHandlerFactory.<clinit> --> ==== 完成 Cmd 和 Handler 的关联 ====
+[12:51:46,388] [INFO] ServerMain.main --> 服务器启动成功!
+[12:52:25,784] [INFO] CmdHandlerFactory.<clinit> --> ==== 完成 Cmd 和 Handler 的关联 ====
+[12:55:21,948] [INFO] ServerMain.main --> 服务器启动成功!
+[12:55:54,253] [INFO] CmdHandlerFactory.<clinit> --> ==== 完成 Cmd 和 Handler 的关联 ====
+[13:00:46,207] [INFO] ServerMain.main --> 服务器启动成功!
+[13:01:46,669] [INFO] CmdHandlerFactory.<clinit> --> ==== 完成 Cmd 和 Handler 的关联 ====
+[13:01:46,727] [INFO] CmdHandlerFactory.<clinit> --> 关联 org.tinygame.herostory.msg.GameMsgProtocol$WhoElseIsHereCmd <==> org.tinygame.herostory.cmdhandler.WhoElseIsHereCmdHandler
+[13:01:46,769] [INFO] CmdHandlerFactory.<clinit> --> 关联 org.tinygame.herostory.msg.GameMsgProtocol$UserMoveToCmd <==> org.tinygame.herostory.cmdhandler.UserMoveToCmdHandler
+[13:01:46,770] [INFO] CmdHandlerFactory.<clinit> --> 关联 org.tinygame.herostory.msg.GameMsgProtocol$UserEntryCmd <==> org.tinygame.herostory.cmdhandler.UserEntryCmdHandler
+[14:17:42,180] [INFO] ServerMain.main --> 服务器启动成功!
+[14:25:41,458] [INFO] ServerMain.main --> 服务器启动成功!

@@ -7,16 +7,9 @@ import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tinygame.herostory.cmdhandler.ICmdHandler;
-import org.tinygame.herostory.cmdhandler.UserEntryCmdHandler;
-import org.tinygame.herostory.cmdhandler.UserMoveToCmdHandler;
-import org.tinygame.herostory.cmdhandler.WhoElseIsHereCmdHandler;
 import org.tinygame.herostory.factory.CmdHandlerFactory;
-import org.tinygame.herostory.model.User;
 import org.tinygame.herostory.model.UserManager;
 import org.tinygame.herostory.msg.GameMsgProtocol;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 重构笔记：
@@ -65,9 +58,8 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
         //其实handle方法要的是cmd，我们可以通过对msg的判断来决定到底是什么cmd
         //if-else可以完成，map也可以完成
         //用map的方式还可以结合反射，自动获取圈梁的msg、cmd、msgCode的映射
-         GeneratedMessageV3 cmd = null;
 
-         //希望有一个工厂，我们把msg投进去，就能返回一个正确的cmd，而不是在外面if-else
+         //希望有一个工厂，我们把msg投进去，就能返回一个正确的cmdHandler，而不是在外面if-else
 
         ICmdHandler<? extends GeneratedMessageV3> handler = CmdHandlerFactory.getHandler(msg.getClass());
 

@@ -1,14 +1,16 @@
 package org.tinygame.herostory;
 
-import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.Message;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import org.tinygame.herostory.factory.GameMsgRecognizer;
-import org.tinygame.herostory.msg.GameMsgProtocol;
 
+/**
+ * 解码时，消息读入要经过channelRead方法，先Decode再通过fireChannelRead传递给下面的handler
+ * 有点javaweb中的filter的味道
+ */
 public class GameMsgDecoder extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {

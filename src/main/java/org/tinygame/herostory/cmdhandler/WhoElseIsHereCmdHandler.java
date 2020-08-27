@@ -14,8 +14,22 @@ public class WhoElseIsHereCmdHandler implements ICmdHandler<GameMsgProtocol.WhoE
             if (null == existUser) continue;
             GameMsgProtocol.WhoElseIsHereResult.UserInfo.Builder userInfoBuilder =
                     GameMsgProtocol.WhoElseIsHereResult.UserInfo.newBuilder();
+
+            // 设置用户的id和头像给WhoElseIsHere命令
             userInfoBuilder.setUserId(existUser.userId);
             userInfoBuilder.setHeroAvatar(existUser.heroAvatar);
+
+            //这里是UserInfo的MoveState
+            GameMsgProtocol.WhoElseIsHereResult.UserInfo.MoveState.Builder moveStateBuilder
+                    = GameMsgProtocol.WhoElseIsHereResult.UserInfo.MoveState.newBuilder();
+            moveStateBuilder.setFromPosX(existUser.moveState.fromPosX);
+            moveStateBuilder.setFromPosY(existUser.moveState.fromPosY);
+            moveStateBuilder.setToPosX(existUser.moveState.toPosX);
+            moveStateBuilder.setToPosY(existUser.moveState.toPosY);
+            moveStateBuilder.setStartTime(existUser.moveState.startTime);
+            // 把当前用户的移动信息给到
+            userInfoBuilder.setMoveState(moveStateBuilder);
+            // 把本次循环中的用户信息给到总的resultBuilder
             resultBuilder.addUserInfo(userInfoBuilder);
         }
         GameMsgProtocol.WhoElseIsHereResult newResult = resultBuilder.build();

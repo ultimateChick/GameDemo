@@ -12,7 +12,8 @@ public class UserManager {
      */
     static private final Map<Integer, User> _userMap = new ConcurrentHashMap<>();
 
-    private UserManager(){}
+    private UserManager() {
+    }
 
     static public void addUser(User user) {
         if (null == user) return;
@@ -21,6 +22,7 @@ public class UserManager {
 
     /**
      * 根据用户 Id 移除用户
+     *
      * @param userId
      */
     static public void removeUserById(int userId) {
@@ -29,10 +31,20 @@ public class UserManager {
 
     /**
      * 返回用户列表
+     *
      * @return
      */
     static public Collection<User> listUser() {
         return _userMap.values();
+    }
+
+    /**
+     * 根据用户id获取具体用户
+     * @param userId
+     * @return
+     */
+    static public User getUserById(int userId) {
+        return _userMap.get(userId);
     }
 
 }
