@@ -10,8 +10,11 @@ import org.tinygame.herostory.msg.GameMsgProtocol;
 public class UserEntryCmdHandler implements ICmdHandler<GameMsgProtocol.UserEntryCmd> {
     @Override
     public void handle(ChannelHandlerContext ctx, GameMsgProtocol.UserEntryCmd cmd) {
-        int userId = cmd.getUserId();
-        String heroAvatar = cmd.getHeroAvatar();
+        // 加入登录功能后，id和avatar由dao填充的UserEntity来决定
+        int userId = 0;
+        String heroAvatar = "aa";
+//        int userId = cmd.get();
+//        String heroAvatar = cmd.getHeroAvatar();
         GameMsgProtocol.UserEntryResult.Builder resultBuilder = GameMsgProtocol.UserEntryResult.newBuilder();
         resultBuilder.setUserId(userId);
         resultBuilder.setHeroAvatar(heroAvatar);

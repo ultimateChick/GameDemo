@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.tinygame.herostory.login.db.IUserDao">
+    <resultMap id="userEntity" type="org.tinygame.herostory.login.db.UserEntity">
+        <id property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="password" column="password"/>
+        <result property="heroAvatar" column="hero_avatar"/>
+    </resultMap>
+
+    <select id="getUserByLogin" resultMap="userEntity">
+        select userid, user_name, password, hero_avatar from t_user where user_name=#{userName} and password=#{password}
+    </select>
+    <select id="getUserByUserName" resultMap="userEntity">
+        select userid, user_name, password, hero_avatar from t_user where user_name=#{userName}
+    </select>
+
+
+
+</mapper>

@@ -65,7 +65,9 @@ public class GameMsgHandler extends SimpleChannelInboundHandler<Object> {
 
         if(null == handler) return;
 
-        handler.handle(channelHandlerContext, cast(msg));
+        //把handler的工作投入到mainThread
+        MainThreadProcessor mainThread = MainThreadProcessor.getInstance();
+        mainThread.process(()-> handler.handle(channelHandlerContext, cast(msg)));
 
     }
 

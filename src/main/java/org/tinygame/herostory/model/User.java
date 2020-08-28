@@ -5,6 +5,12 @@ public class User {
      * 用户 Id
      */
     public int userId;
+
+    /**
+     * 用户名称
+     */
+    public String userName;
+
     /**
      * 英雄形象
      */
