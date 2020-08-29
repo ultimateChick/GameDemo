@@ -41,6 +41,27 @@ public final class GetRankService {
         AsyncOperationProcessor.getInstance().process(aop);
     }
 
+    public void refreshRank(int winnerId, int loserId) {
+        if (winnerId <=0 || loserId <= 0){
+            return;
+        }
+
+        try (Jedis redis = RedisUtil.getJedis()) {
+            //hincrby命令可以直接创造属性，并向上追加数值
+            redis.hincrBy("userId_" + winnerId, "win", 1);
+            redis.hincrBy("userId_" + loserId, "lose", 1);
+
+            String win = redis.hget("userId_" + winnerId, "win");
+            int winNum = Integer.parseInt(win);
+
+            //更新sortedSet中，对应id的胜利次数
+            redis.zadd("Rank", winNum, String.valueOf(winnerId));
+
+        } catch (Exception exception){
+            LOGGER.error(exception.getMessage(), exception);
+        }
+    }
+
 
     private class AsyncGetRankOperation implements IAsyncOperation {
 
@@ -52,6 +73,7 @@ public final class GetRankService {
 
         @Override
         public void doAsync() {
+
             //每次请求时创建一个新的rankEntity集合，免去清理工作
             //不过每次getRank创建了一个新的aop就是了...
             _rankEntities = new ArrayList<>();

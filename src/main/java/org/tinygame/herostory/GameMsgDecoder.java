@@ -33,6 +33,7 @@ public class GameMsgDecoder extends ChannelInboundHandlerAdapter {
         Message.Builder msgBuilderByMsgCode = GameMsgRecognizer.getMsgBuilderByMsgCode(msgCode);
 
         if (null == msgBuilderByMsgCode) return;
+
         msgBuilderByMsgCode.clear();
         cmd = msgBuilderByMsgCode.mergeFrom(msgBody).build();
 
@@ -44,5 +45,6 @@ public class GameMsgDecoder extends ChannelInboundHandlerAdapter {
         if (null != cmd) {
             ctx.fireChannelRead(cmd);
         }
+
     }
 }

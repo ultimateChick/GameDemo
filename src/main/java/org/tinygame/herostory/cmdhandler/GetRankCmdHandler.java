@@ -11,6 +11,7 @@ public class GetRankCmdHandler implements ICmdHandler<GameMsgProtocol.GetRankCmd
     //虽然redis很快，但也算是IO，用异步处理器来做
     @Override
     public void handle(ChannelHandlerContext ctx, GameMsgProtocol.GetRankCmd tCmd) {
+
         GetRankService.getInstance().getRank(rankEntities -> {
 
             if (null == rankEntities) {

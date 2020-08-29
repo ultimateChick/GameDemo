@@ -21,7 +21,6 @@ public class ServerMain {
     public static void main(String[] args) {
         try {
 //            CmdHandlerFactory.init();
-
             NioEventLoopGroup bossGroup = new NioEventLoopGroup(1);
             NioEventLoopGroup workerGroup = new NioEventLoopGroup(3);
 
