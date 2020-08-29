@@ -23,7 +23,7 @@ public class MqConsumer {
 
     }
 
-    static {
+    static public void init() {
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("herostory");
         consumer.setNamesrvAddr("10.0.1.10:9876");
 
