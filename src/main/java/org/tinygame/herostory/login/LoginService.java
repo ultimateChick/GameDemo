@@ -46,7 +46,10 @@ public class LoginService {
             public void doFinish() {
                 callback.apply(_userEntity);
             }
+
         };
+
+        asyncOperationProcessor.process(aLoginOp);
     }
 
     private class AsyncLoginOperation implements IAsyncOperation {
@@ -60,11 +63,15 @@ public class LoginService {
             _password = password;
         }
 
+        //为什么要和username发生关联？？
+        //这样能保证同一个username的请求过来都发生在同一个线程池中
+        //存在问题： 需要证明请求的分布足够均匀！
         @Override
         public int getBindId() {
-            return 0;
+            return _username.charAt(_username.length() - 1);
         }
 
+        //
         @Override
         public void doAsync() {
             try (SqlSession sqlSession = MySqlSessionFactory.openSession()) {

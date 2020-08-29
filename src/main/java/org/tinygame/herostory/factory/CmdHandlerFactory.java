@@ -40,16 +40,18 @@ public final class CmdHandlerFactory {
         final String packageName = ICmdHandler.class.getPackage().getName();
         // 获取所有的 ICmdHandler 子类
         Set<Class<?>> clazzSet = PackageUtil.listSubClazz(
-                packageName,
-                true,
-                ICmdHandler.class
+                packageName, // 指定具体的包
+                true, //表示递归到各个目录下
+                ICmdHandler.class //要求返回isAssignable的类，即ICmdHandler的类族
         );
 
         System.out.println(clazzSet);
 
         for (Class<?> clazz : clazzSet) {
             if ((clazz.getModifiers() & Modifier.ABSTRACT) != 0) {
-                // 如果是抽象类,
+                // 如果是抽象类,就跳过，我们要具体的实现类
+                // 能看到泛型是Java提供的语法糖
+                // 在字节码层级其实是创建了对应的抽象类（模板），然后具体实现类做了对应的实现
                 continue;
             }
 
@@ -57,7 +59,8 @@ public final class CmdHandlerFactory {
             Method[] methodArray = clazz.getDeclaredMethods();
             // 消息类型
             Class<?> msgType = null;
-
+            //从接口的设计中可以看到，接口的泛型参数可以从handle方法的第二个传参得到
+            //从这里我们可以建立具体的消息和消息处理器的对应
             for (Method currMethod : methodArray) {
                 if (!currMethod.getName().equals("handle")) {
                     // 如果不是 handle 方法,
@@ -68,7 +71,7 @@ public final class CmdHandlerFactory {
                 Class<?>[] paramTypeArray = currMethod.getParameterTypes();
 
                 if (paramTypeArray.length < 2 ||
-                        paramTypeArray[1] == GeneratedMessageV3.class || // 这里最好加上这个判断
+                        paramTypeArray[1] == GeneratedMessageV3.class || // 这里最好加上这个判断？
                         !GeneratedMessageV3.class.isAssignableFrom(paramTypeArray[1])) {
                     continue;
                 }

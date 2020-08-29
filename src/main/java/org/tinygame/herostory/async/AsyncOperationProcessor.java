@@ -2,6 +2,7 @@ package org.tinygame.herostory.async;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tinygame.herostory.MainThreadProcessor;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,9 +31,18 @@ public class AsyncOperationProcessor {
     }
 
     public void process(IAsyncOperation aop) {
-//        int bindId = Math.abs(asyncOp.getBindId());
-//        int esIndex = bindId % _esArray.length;
-//
-//        ess
+
+        int _bindId = aop.getBindId();
+        int index = _bindId % _ess.length;
+
+        //拿到执行此次IO操作的线程号
+        ExecutorService es = _ess[index];
+
+        es.submit(() -> {
+            //先让LoginService中的异步操作完成，填充UserEntity之后
+            aop.doAsync();
+            //到主线程中，利用得到的UserEntity，进行剩余的Handler逻辑
+            MainThreadProcessor.getInstance().process(aop::doFinish);
+        });
     }
 }

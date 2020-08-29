@@ -39,6 +39,9 @@ public final class GameMsgRecognizer {
 //
 //    }
 
+    /**
+     * 反射方式动态创建map
+     */
     static{
         Class<?>[] innerClasses = GameMsgProtocol.class.getDeclaredClasses();
         for (Class<?> innerClass : innerClasses) {

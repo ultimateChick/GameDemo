@@ -22,6 +22,7 @@ public class UserLoginCmdHandler implements ICmdHandler<GameMsgProtocol.UserLogi
         // 通过dao去数据库检查，使用LoginService的登录功能
         LoginService loginService = LoginService.getInstance();
         loginService.userLogin(userName, password, userEntity -> {
+
             LOGGER.info("当前线程 = {}", Thread.currentThread().getName());
 
             GameMsgProtocol.UserLoginResult.Builder resultBuilder = GameMsgProtocol.UserLoginResult.newBuilder();
@@ -53,6 +54,7 @@ public class UserLoginCmdHandler implements ICmdHandler<GameMsgProtocol.UserLogi
 
                 ctx.writeAndFlush(loginResult);
             }
+
             return null;
         });
     }

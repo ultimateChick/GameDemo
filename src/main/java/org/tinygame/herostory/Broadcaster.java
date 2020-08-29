@@ -4,6 +4,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import org.tinygame.herostory.msg.GameMsgProtocol;
 
 public final class Broadcaster {
     /**
@@ -44,6 +45,7 @@ public final class Broadcaster {
     static public void broadcast(Object msg) {
         if (null == msg) return;
         _channelGroup.writeAndFlush(msg);
+
     }
 
 }

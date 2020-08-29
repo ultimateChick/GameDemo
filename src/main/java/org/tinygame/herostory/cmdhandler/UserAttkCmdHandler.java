@@ -3,8 +3,10 @@ package org.tinygame.herostory.cmdhandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import org.tinygame.herostory.Broadcaster;
+import org.tinygame.herostory.model.MqVictoryMsg;
 import org.tinygame.herostory.model.User;
 import org.tinygame.herostory.model.UserManager;
+import org.tinygame.herostory.mq.MqProducer;
 import org.tinygame.herostory.msg.GameMsgProtocol;
 
 /**
@@ -33,7 +35,16 @@ public class UserAttkCmdHandler implements ICmdHandler<GameMsgProtocol.UserAttkC
         //需要游戏策划提供伤害公式
         int damage = 10;
         targetUser.hp -= damage;
-        if (targetUser.hp <= 0) UserDeathEventHandler.dying(targetUserId);
+        if (targetUser.hp <= 0) {
+            UserDeathEventHandler.dying(targetUserId);
+
+            MqVictoryMsg newMsg = new MqVictoryMsg();
+            newMsg.winnerId = attkingUserId;
+            newMsg.loserId = targetUserId;
+
+            //发送一个
+            MqProducer.sendMsg("herostory_victory", newMsg);
+        }
 
         attkEventBroadCast(attkingUserId, targetUserId);
         userHpSubtractResult(targetUserId, damage);
