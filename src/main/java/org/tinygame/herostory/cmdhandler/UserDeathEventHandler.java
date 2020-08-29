@@ -11,6 +11,7 @@ import org.tinygame.herostory.msg.GameMsgProtocol;
  */
 public class UserDeathEventHandler {
     public static void dying(int targetUserId) {
+
         User dyingUser = UserManager.getUserById(targetUserId);
         if (null == dyingUser) return;
 
@@ -21,5 +22,6 @@ public class UserDeathEventHandler {
 
         GameMsgProtocol.UserDieResult deathResult = builder.build();
         Broadcaster.broadcast(deathResult);
+
     }
 }

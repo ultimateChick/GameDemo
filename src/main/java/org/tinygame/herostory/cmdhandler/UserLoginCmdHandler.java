@@ -16,9 +16,11 @@ public class UserLoginCmdHandler implements ICmdHandler<GameMsgProtocol.UserLogi
 
     @Override
     public void handle(ChannelHandlerContext ctx, GameMsgProtocol.UserLoginCmd tCmd) {
+
         // 获取名称和密码
         String userName = tCmd.getUserName();
         String password = tCmd.getPassword();
+
         // 通过dao去数据库检查，使用LoginService的登录功能
         LoginService loginService = LoginService.getInstance();
         loginService.userLogin(userName, password, userEntity -> {
